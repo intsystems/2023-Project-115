@@ -127,3 +127,6 @@ logs/
 *.blg
 *.out
 *.gz
+
+# Data
+data/*
