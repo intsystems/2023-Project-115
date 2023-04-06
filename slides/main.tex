@@ -1,192 +1,159 @@
-\documentclass[10pt,pdf,hyperref={unicode}]{beamer}
-
-\mode<presentation>
-{
-\usetheme{boxes}
+\documentclass{beamer}
 \beamertemplatenavigationsymbolsempty
-
+\usecolortheme{beaver}
+\setbeamertemplate{blocks}[rounded=true, shadow=true]
 \setbeamertemplate{footline}[page number]
-\setbeamersize{text margin left=0.5em, text margin right=0.5em}
-}
-
+%
 \usepackage[utf8]{inputenc}
-\usepackage[english, russian]{babel}
-\usepackage{bm}
-\usepackage{multirow}
-\usepackage{ragged2e}
-\usepackage{indentfirst}
-\usepackage{multicol}
+\usepackage[english,russian]{babel}
+\usepackage{amssymb,amsfonts,amsmath,mathtext}
 \usepackage{subfig}
-\usepackage{amsmath,amssymb}
-\usepackage{enumerate}
-\usepackage{mathtools}
-\usepackage{comment}
-\usepackage{multicol}
-
-\usepackage[all]{xy}
-
-\usepackage{tikz}
-\usetikzlibrary{positioning,arrows}
-
-\tikzstyle{name} = [parameters]
-\definecolor{name}{rgb}{0.5,0.5,0.5}
-
-\usepackage{caption}
-\captionsetup{skip=0pt,belowskip=0pt}
-
-\newtheorem{rustheorem}{Теорема}
-\newtheorem{russtatement}{Утверждение}
-\newtheorem{rusdefinition}{Определение}
-
-% colors
-\definecolor{darkgreen}{rgb}{0.0, 0.2, 0.13}
-\definecolor{darkcyan}{rgb}{0.0, 0.55, 0.55}
-
-\AtBeginEnvironment{figure}{\setcounter{subfigure}{0}}
-
-\captionsetup[subfloat]{labelformat=empty}
+\usepackage[all]{xy} % xy package for diagrams
+\usepackage{array}
+\usepackage{multicol} % many columns in slide
+\usepackage{hyperref} % urls
+\usepackage{hhline} %tables
+\usepackage{comment} %comments
+% Your figures are here:
+\graphicspath{ {../figures/} }
 
 %----------------------------------------------------------------------------------------------------------
 
-\title[Пример слайдов по работе]{Пример слайдов по работе \\ курса}
-\author{И.\,О.\,Фамилия}
+\title[\hbox to 56mm{Дистилляция знаний в глубоких сетях}]{Дистилляция знаний в глубоких сетях и выравнивание структур моделей}
+\author[М.\,С.~Олейник]{Михаил Сергеевич Олейник}
+\institute{Московский физико-технический институт}
+\date{\footnotesize
+\par\smallskip\emph{Курс:} Моя первая научная статья
+\par\smallskip\emph{Консультант:} М. Горпинич
+\par\bigskip\small 2023}
 
-\institute[]{Московский физико-технический институт}
-\date[2022]{\small 10\;февраля\;2022\,г.}
-
-%---------------------------------------------------------------------------------------------------------
+%----------------------------------------------------------------------------------------------------------
 \begin{document}
+%----------------------------------------------------------------------------------------------------------
 
 \begin{frame}
-\titlepage
+
+    %\thispagestyle{empty}
+    \maketitle
+
 \end{frame}
 
-%----------------------------------------------------------------------------------------------------------
-\section{Слайд об исследованиях}
-\begin{frame}{Слайд об исследованиях}
-\bigskip
-Исследуется проблема \ldots.
-\begin{block}{Цель исследования~---}
-предложить метод \ldots.
-\end{block}
-\begin{block}{Требуется предложить}
-\justifying
-\begin{enumerate}[1)]
-\item метод \ldots,
-\item метод \ldots,
-\item метод \ldots.
-\end{enumerate}
-\end{block}
-\begin{block}{Решение}
-Для \ldots.
-\end{block}
-\end{frame}
+%-----------------------------------------------------------------------------------------------------
 
-%---------------------------------------------------------------------------------------------------------
-\section{Постановка задачи \ldots}
-\begin{frame}{Постановка задачи \ldots}
-Заданы
-\begin{enumerate}[1)]
-    \item признаки \ldots,
-    \item целевая переменная \ldots,
-    \item \ldots.
-\end{enumerate}
+\begin{frame}{Предлагаемый подход}
 
-\ldots
+    \begin{columns}[c]
+        \column{0.4\textwidth}
+        \begin{figure}
+            \includegraphics[width=1.0\textwidth]{ahn_diagram.pdf}
+            \caption{Базовый метод}
+        \end{figure}
 
-\bigskip
+        \column{0.4\textwidth}
+        \begin{figure}
+            \includegraphics[width=1.0\textwidth]{our_diagram.pdf}
+            \caption{Предлагаемый метод}
+        \end{figure}
+    \end{columns}
 
-Требуется выбрать модель \ldots из множества
-\[
-	\mathfrak{G} = \left\{\mathbf{g}| \mathbf{g}:\mathbb{R}^{n} \to \mathbb{Y}^\prime\right\}.
-\]
-Оптимизационная задача \ldots:
-\[
-	\mathbf{g} = \arg\min_{\mathbf{g} \in \mathfrak{G}} \mathcal{L}\bigr(\ldots\bigr),
-\]
-где $\mathcal{L}$~--- функция ошибки.
+    \begin{columns}[c]
+        \column{0.6\textwidth}
+        \begin{equation}
+            \mathcal{L} = \beta \mathcal{L}_\text{CE} - (1 - \beta){\sum_{i, j=1}^{T, S}\lambda_{i, j}I(t_{i}, s_{j})}
+        \end{equation}
+        \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}
+        \begin{equation}
+            \forall j \hookrightarrow  \sum_{i=1}^{T}\lambda_{i, j} = 1
+        \end{equation}
 
-\bigskip
-\footnotetext[1]{\textit{Lopez-Paz D., Bottou L., Scholkopf B., Vapnik V.} Unifying distillation and privileged information // ICLR, 2016.}
-\footnotetext[2]{\textit{Hinton G., Vinyals O., Dean J.} Distilling the knowledge in a neural network // NIPS, 2015.}
-\end{frame}
+        \column{0.4\textwidth}
+        $T, S$ - количество слоёв учителя и ученика,
 
-%----------------------------------------------------------------------------------------------------------
-\section{Предложенный метод \ldots}
-\begin{frame}{Предложенный метод \ldots}
-~\\[-1mm]
-Заданы
-\begin{enumerate}[1)]
-	\item \ldots,
-	\item \ldots.
-\end{enumerate}
+        $I(t_{i}, s_{j})$ - взаимная информация,
 
-\medskip
-Параметрические семейства:
-\[
-\setlength\abovedisplayskip{0pt}
-\mathfrak{F} = \left\{\mathbf{f}| \mathbf{f} = \text{softmax}\bigr(\mathbf{v}\bigr(\mathbf{x}\bigr)/T\bigr), \quad \mathbf{v}: \mathbb{R}^{n} \to \mathbb{R}^K \right\},
-\]
-\[
-\mathfrak{G} = \left\{\mathbf{g}| \mathbf{g} = \text{softmax}\bigr(\mathbf{z}\bigr(\mathbf{x}\bigr)/T\bigr), \quad \mathbf{z}: \mathbb{R}^n \to \mathbb{R}^K \right\},
-\]
-где~\ldots.
-
-\medskip
-Функция ошибки
-\[
-\setlength\abovedisplayskip{0pt}
-\begin{aligned}
-   \mathcal{L}\bigr(\mathbf{g}\bigr) = &-\sum_{i=1}^{m}\underbrace{{\sum_{k=1}^{K}y^k_i\log\mathbf{g}\bigr(\mathbf{x}_i\bigr)\bigr|_{T=1}}}_{\text{исходная функция потерь}}- \sum_{i=1}^{m}\underbrace{{\sum_{k=1}^{K}\mathbf{f}\bigr(\mathbf{x}_i\bigr)\bigr|_{T=T_0}\log\mathbf{g}\bigr(\mathbf{x}_i\bigr)\bigr|_{T=T_0}}}_{\text{слагаемое дистилляции}},
-\end{aligned}
-\setlength\belowdisplayskip{0pt}
-\]
-где~\ldots.
-
-Оптимальная модель выбирается из класса,
-$\hat{\mathbf{g}} = \arg\min\limits_{\mathbf{g} \in \mathfrak{G}_{\text{cl}}} \mathcal{L}\bigr(\mathbf{g}\bigr).$
-\end{frame}
-
-%----------------------------------------------------------------------------------------------------------
-\section{Анализ предложенного метода \ldots}
-\begin{frame}{Анализ предложенного метода \ldots}
-\justifying
-
-На графике показана зависимость значения параметров$w_i$ в зависимости от параметра~$l_1$-регуляризации~$C$.
-\begin{figure}[h!]
-\includegraphics[width=0.45\textwidth]{../figures/log_reg_cs_exp.eps}
-\includegraphics[width=0.45\textwidth]{../figures/log_reg_cs_exp.eps}
-\end{figure}
-
-С увеличением параметра регуляризации~$C$ число ненулевых параметров~$w_i$ уменьшается.
+        $\beta$ и $\lambda_{i, j}$ --- гиперпараметры.
+    \end{columns}
 
 \end{frame}
 
 %----------------------------------------------------------------------------------------------------------
-\section{Выводы}
-\begin{frame}{Выводы}
-\justifying
-	\begin{enumerate}
-	\justifying
-	    \item Предложен \ldots.
-        \item Доказаны теоремы \ldots, 
-        \begin{itemize}
-            \item[---] \ldots,
-            \item[---] \ldots.
-        \end{itemize}
-        \item Предложен метод \ldots
-        \begin{itemize}
-            \item[---] \ldots,
-            \item[---] \ldots.
-        \end{itemize}
-        \item Предложены методы \ldots
-        \begin{itemize}
-            \item[---] \ldots,
-            \item[---] \ldots.
-        \end{itemize}
-        \item Предложена вероятностная интерпретации \ldots.
-	\end{enumerate}
+
+\begin{frame}{Взаимная информация}
+    Метод вариации нижней границы:
+    \begin{equation}
+        I(t, s) = H(t) - H(t|s) \geq  H(t) + E_{t,s}[\log{q(t|s)}].
+    \end{equation}
+    Как будет выглядеть вариационное распределение?
+    \begin{multline}
+        -\log{q(t|s)} = -\sum_{c=1}^{C}  \sum_{h=1}^{H} \sum_{w=1}^{W} \log{q(t_{c,h,w}|s)} = \\
+        = \sum_{c=1}^{C}  \sum_{h=1}^{H} \sum_{w=1}^{W} \log{\sigma_c} + \frac{(t_{c,h,w} - \mu_{c,h,w}(s))^2}{2\sigma_c^2} + constant.
+    \end{multline}
+    Обучаемые параметры скрываются здесь:
+    $$\sigma^2_c = \log{(1 + e^{\alpha_c})} + \epsilon$$
+    $$\mu_{c,h,w}(s) = \mu(s)_{c,h,w}$$
 \end{frame}
+
 %----------------------------------------------------------------------------------------------------------
 
-\end{document} 
+\begin{frame}{Эксперимент}
+    \begin{columns}[c]
+        \column{0.4\textwidth}
+        \textbf{Выборка}: CIFAR10.
+
+        \textbf{Модели}: 3 conv, 2 linear.
+
+        \textbf{Метрика}: accuracy.
+
+        \column{0.55\textwidth}
+        \begin{figure}
+            \includegraphics[width=1.0\textwidth]{distill_epoch_accuracy.png}
+            \caption{Точность от эпохи при дистилляции каждый с каждым}
+        \end{figure}
+    \end{columns}
+
+    \begin{table}[]
+        \begin{tabular}{|l|l|l|l|l|}
+            \hline
+            Дистилляция & ---  & Хинтона & попарная  & каждый с каждым \\ \hline
+            Учитель     & 0.58 & ---     & ---       & ---             \\ \hline
+            Ученик      & 0.54 & 0.56    & 0.58-0.59 & 0.58-0.59       \\ \hline
+        \end{tabular}
+        \caption{Сравнение качества моделей на тестовой выборке}
+    \end{table}
+\end{frame}
+
+%----------------------------------------------------------------------------------------------------------
+
+\begin{frame}{Ограничения на коэффициенты}
+    \begin{figure}[H]
+        \begin{minipage}[h]{0.35\linewidth}
+            \center{\includegraphics[width=1\linewidth]{connections_1}} a) \\
+        \end{minipage}
+        \hfill
+        \begin{minipage}[h]{0.35\linewidth}
+            \center{\includegraphics[width=1\linewidth]{connections_2}} b) \\
+        \end{minipage}
+        \vfill
+        \begin{minipage}[h]{0.35\linewidth}
+            \center{\includegraphics[width=1\linewidth]{connections_3}} c) \\
+        \end{minipage}
+        \hfill
+        \begin{minipage}[h]{0.35\linewidth}
+            \center{\includegraphics[width=1\linewidth]{connections_4}} d) \\
+        \end{minipage}
+        \caption{Иллюстрация коэффициентов у четырех лучших моделей по качеству. Зелёные точки --- слои ученика, красные --- слои учителя. Чем толще линия, тем больше коэффициент у соответствующей связи.}
+    \end{figure}
+\end{frame}
+
+%----------------------------------------------------------------------------------------------------------
+
+\begin{frame}{Промежуточные выводы}
+    \begin{itemize}
+        \item Между учителем и учеником мало различий, не можем увидеть разницу в качестве у разных подходов.
+              Пробуем с учителем побольше.
+        \item Какие-то закономерности с коэффициентами присутствуют. Утверждать рано, продолжаем изучать.
+    \end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------------------------
+\end{document}
