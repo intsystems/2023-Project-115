@@ -1,5 +1,124 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from math import ceil, prod
+
+
+def calc_new_width(width, kernel_size=1, stride=1, padding=0):
+    return (width - kernel_size + 2 * padding) // stride + 1, (
+        width - kernel_size + 2 * padding
+    ) % stride
+
+
+def build_3_conv(begin, end):
+    if begin < end:
+        raise ValueError("Begin less then end")
+
+    step = ceil((begin / end) ** (1 / 3))
+    current = begin
+
+    conv_setup = []
+    padding = []
+    for i in range(3):
+        output_padding = 0
+        if current // step >= end:
+            conv_setup.append({"kernel_size": step, "stride": step})
+            current, output_padding = calc_new_width(current, step, step)
+        elif current == end:
+            conv_setup.append({"kernel_size": 1})
+        else:
+            diff = current - end
+            conv_setup.append({"kernel_size": diff + 1})
+            current = end
+        padding.append(output_padding)
+
+    return conv_setup, padding
+
+
+class Mu_Transform(nn.Module):
+    def __init__(
+        self,
+        in_channel,
+        out_channel,
+        conv_setup={},
+        verbose=False,
+        transposed=False,
+        linear=False,
+    ):
+        super(Mu_Transform, self).__init__()
+        self.verbose = verbose
+        self.linear = linear
+
+        if self.linear:
+            self.linear_layer = nn.Linear(in_channel, out_channel)
+        else:
+            if transposed:
+                self.conv1 = nn.ConvTranspose2d(
+                    in_channel, 2 * in_channel, **conv_setup[0]
+                )
+                self.conv1_bn = nn.BatchNorm2d(2 * in_channel)
+
+                self.conv2 = nn.ConvTranspose2d(
+                    2 * in_channel, 2 * out_channel, **conv_setup[1]
+                )
+                self.conv2_bn = nn.BatchNorm2d(2 * out_channel)
+
+                self.conv3 = nn.ConvTranspose2d(
+                    2 * out_channel, out_channel, **conv_setup[2]
+                )
+            else:
+                self.conv1 = nn.Conv2d(in_channel, 2 * in_channel, **conv_setup[0])
+                self.conv1_bn = nn.BatchNorm2d(2 * in_channel)
+
+                self.conv2 = nn.Conv2d(2 * in_channel, 2 * out_channel, **conv_setup[1])
+                self.conv2_bn = nn.BatchNorm2d(2 * out_channel)
+
+                self.conv3 = nn.Conv2d(2 * out_channel, out_channel, **conv_setup[2])
+
+    def forward(self, x):
+        if self.verbose:
+            print(f"{x.shape=}")
+
+        if self.linear:
+            out = x.view(x.size(0), -1)
+            out = self.linear_layer(out)
+        else:
+            out = F.relu(self.conv1_bn(self.conv1(x)))
+            if self.verbose:
+                print(f"{out.shape=}")
+
+            out = F.relu(self.conv2_bn(self.conv2(out)))
+            if self.verbose:
+                print(f"{out.shape=}")
+
+            out = self.conv3(out)
+
+        if self.verbose:
+            print(f"{out.shape=}")
+
+        return out
+
+
+def get_mu_transform(first: torch.Size, second: torch.Size, verbose=False):
+    if len(first) == 2 or len(second) == 2:
+        return Mu_Transform(
+            prod(first[1:]), prod(second[1:]), linear=True, verbose=verbose
+        )
+    elif first[2] < second[2]:
+        conv_setup, output_padding = build_3_conv(second[2], first[2])
+        for i in range(3):
+            conv_setup[i]["output_padding"] = output_padding[i]
+        conv_setup.reverse()
+        if verbose:
+            print(f"{conv_setup=}")
+        return Mu_Transform(
+            first[1], second[1], conv_setup=conv_setup, transposed=True, verbose=verbose
+        )
+    else:
+        conv_setup, output_padding = build_3_conv(first[2], second[2])
+        if verbose:
+            print(f"{conv_setup=}")
+        return Mu_Transform(first[1], second[1], conv_setup=conv_setup, verbose=verbose)
 
 
 class DownStudent(nn.Module):
@@ -95,7 +214,6 @@ class Student_Teacher(nn.Module):
         self.conv3 = nn.Conv2d(2 * out_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
-
         out = F.relu(self.conv1_bn(self.conv1(x)))
 
         out = F.relu(self.conv2_bn(self.conv2(out)))

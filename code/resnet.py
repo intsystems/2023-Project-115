@@ -110,5 +110,13 @@ class ResNet(nn.Module):
         return feature
 
 
+def ResNet10(num_classes=10):
+    return ResNet(PreActBlock, [1, 1, 1, 1], num_classes=num_classes)
+
+
 def ResNet18(num_classes=10):
     return ResNet(PreActBlock, [2, 2, 2, 2], num_classes=num_classes)
+
+
+def ResNet34(num_classes=10):
+    return ResNet(PreActBlock, [3, 4, 6, 3], num_classes=num_classes)
