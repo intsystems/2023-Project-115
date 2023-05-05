@@ -8,8 +8,11 @@
 \usepackage{nicefrac}
 \usepackage{microtype}
 \usepackage{multicol}
+\usepackage{wrapfig}
 \usepackage{lipsum}
 \usepackage{graphicx}
+\usepackage{multicol}
+\usepackage[justification=centering]{caption}
 \usepackage{natbib}
 \usepackage{doi}
 \usepackage[utf8]{inputenc}
@@ -112,20 +115,56 @@ $$
 где $\mathcal{L}_\text{task}$ --- функция потерь для решения задачи классификации,
 $I(t_{i}, s_{j})$ --- взаимная информация, $\beta$ и $\lambda_{i, j}$ --- гиперпараметры.
 
+\begin{figure}[h]
+  \begin{multicols}{2}
+    \hfill
+    \includegraphics[width=0.4\textwidth]{../figures/ahn_diagram.pdf}
+    \hfill
+    \caption{Базовый метод.}
+    \label{ris:ahn_diagram}
+    \hfill
+    \includegraphics[width=0.4\textwidth]{../figures/our_diagram.pdf}
+    \hfill
+    \caption{Предлагаемый метод.}
+    \label{ris:our_diagram}
+  \end{multicols}
+\end{figure}
+
+\subsection{Взаимная информация}
+Взаимная информация
+
+\subsection{Алгоритм}
+Алгоритм.
 \section{Вычислительный эксперимент}
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+  \begin{center}
+    \includegraphics[width=0.25\textwidth]{../figures/conv_scheme.png}
+  \end{center}
+  \caption{Архитектура сетей \textbf{ConvTiny} и \textbf{ConvVeryTiny}.}
+  \label{ris:conv_architecture}
+\end{wrapfigure}
+
+Для проведения экспериментов использовался датасет CIFAR10, разбитый на обучающую и тестовую выборку.
+Использовались модели \textbf{ResNet10}, \textbf{ResNet18}, \textbf{ConvTiny} и \textbf{ConvVeryTiny}.
+Последние две - свёрточные нейронные сети, с тремя свёрточными и двумя полносвязными слоями, как описано на схеме \ref{ris:conv_architecture}.
+
 
 \subsection{Базовый эксперимент}
 
-Был проведён эксперимент с использованием датасета CIFAR10. В качестве модели учителя была выбрана модель \textbf{ResNet-18},
-в качестве учеников --- две свёрточные нейронные сети, под кодовыми названиями \textbf{tiny} и \textbf{very\_tiny}.
+В качестве модели учителя была выбрана модель \textbf{ResNet18},
+в качестве учеников --- \textbf{ConvTiny} и \textbf{ConvVeryTiny}.
+В качестве метрики была выбрана точность (accuracy).
 
 Цель --- сравнение качества учеников с и без дистилляции Хинтона, а также зависимость качества
-дистиллированных моделей от гиперпараметров $\beta$ и $T$.
+дистиллированных моделей от гиперпараметров $\beta$ и $T$, что демонстрируется на графиках \ref{ris:hinton_box},
+\ref{ris:hinton_beta} и \ref{ris:hinton_temp} соответственно.
 
 \begin{figure}[h]
   \includegraphics[width=9cm]{../figures/box_hinton_model_accuracy.png}
   \centering
   \caption{Сравнение качества моделей.}
+  \label{ris:hinton_box}
 \end{figure}
 
 \begin{figure}[h]
@@ -134,16 +173,91 @@ $I(t_{i}, s_{j})$ --- взаимная информация, $\beta$ и $\lambda
     \includegraphics[width=0.5\textwidth]{../figures/scatter_hinton_beta_acc.png}
     \hfill
     \caption{Зависимость качества от параметра $\beta$.}
+    \label{ris:hinton_beta}
     \hfill
     \includegraphics[width=0.5\textwidth]{../figures/scatter_hinton_temp_acc.png}
     \hfill
     \caption{Зависимость качества от параметра $T$.}
+    \label{ris:hinton_temp}
   \end{multicols}
 \end{figure}
 
 \subsection{Основной эксперимент}
 
+\subsubsection{Дистилляция из \textbf{ConvTiny}}
 
+Был проведен эксперимент по дистилляции из \textbf{ConvTiny} в \textbf{ConvVeryTiny}.
+Были рассмотрены разные методы: Хинтона, попарная, и предлагаемый метод.
+В таблице \ref{table:tiny} представлены значения точности для моделей без дистилляции и при дистилляции упоминаемыми методами.
+
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    Дистилляция & ---  & Хинтона & попарная  & каждый с каждым \\ \hline
+    Учитель     & 0.58 & ---     & ---       & ---             \\ \hline
+    Ученик      & 0.54 & 0.56    & 0.58-0.59 & 0.58-0.59       \\ \hline
+  \end{tabular}
+  \caption{Качество моделей при дистилляции на тестовой выборке, учитель --- \textbf{ConvTiny}, ученик --- \textbf{ConvVeryTiny}.}
+  \label{table:tiny}
+\end{table}
+
+При предлагаемом методе дистилляции "каждый с каждым" выбирались случаные гиперпараметры $\lambda_{i, j}$
+и $\beta$, на графике \ref{ris:tiny_accuracy} можно увидеть значение метрики на тестовой выборке для разных гиперпараметров,
+на рисунке \ref{ris:tiny_lambdas} визуализированы значения $\lambda_{i, j}$ в лучших по качеству запусках.
+Наблюдается общий паттерн, что связи с третьим слоем учителя (самым большим по количеству параметров)
+больше, чем с остальными слоями учителя.
+
+\begin{figure}
+  \begin{minipage}[h]{0.35\linewidth}
+    \center{\includegraphics[width=1\linewidth]{../figures/connections_1}} a) \\
+  \end{minipage}
+  \hfill
+  \begin{minipage}[h]{0.35\linewidth}
+    \center{\includegraphics[width=1\linewidth]{../figures/connections_2}} b) \\
+  \end{minipage}
+  \vfill
+  \begin{minipage}[h]{0.35\linewidth}
+    \center{\includegraphics[width=1\linewidth]{../figures/connections_3}} c) \\
+  \end{minipage}
+  \hfill
+  \begin{minipage}[h]{0.35\linewidth}
+    \center{\includegraphics[width=1\linewidth]{../figures/connections_4}} d) \\
+  \end{minipage}
+  \caption{Иллюстрация коэффициентов у четырех лучших моделей по качеству. Зелёные точки --- слои ученика, красные --- слои учителя. Чем толще линия, тем больше коэффициент у соответствующей связи.}
+  \label{ris:tiny_lambdas}
+\end{figure}
+
+\begin{figure}
+  \center{\includegraphics[width=0.7\textwidth]{../figures/distill_epoch_accuracy.png}}
+  \caption{Точность от эпохи при дистилляции каждый с каждым}
+  \label{ris:tiny_accuracy}
+\end{figure}
+
+\subsubsection{Дистилляция из \textbf{ResNet10}}
+
+При дистилляции из \textbf{ResNet10} в \textbf{ConvVeryTiny} качество ухудшилось.
+Это связано с тем, что сеть учителя стала слишком сложной для ученика,
+данное явление рассматривается в работе \cite{mirzadeh2020improved}.
+
+В таблице \ref{table:resnet10} представлены значения метрик при дистилляции из \textbf{ResNet10} в \textbf{ConvTiny}.
+
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|l|l|l|l|}
+    \hline
+    Дистилляция & ---  & Хинтона & каждый с каждым \\ \hline
+    Учитель     & 0.68 & ---     & ---             \\ \hline
+    Ученик      & 0.58 & 0.60    & 0.63            \\ \hline
+  \end{tabular}
+  \caption{Качество моделей при дистилляции на тестовой выборке, учитель --- \textbf{ResNet10}, ученик --- \textbf{ConvTiny}.}
+  \label{table:resnet10}
+\end{table}
+
+\section{Заключение}
+Заключение.
 
 
 \newpage
