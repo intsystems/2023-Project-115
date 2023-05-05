@@ -137,14 +137,6 @@ $I(t_{i}, s_{j})$ --- взаимная информация, $\beta$ и $\lambda
 Алгоритм.
 \section{Вычислительный эксперимент}
 
-\begin{wrapfigure}{r}{0.25\textwidth}
-  \begin{center}
-    \includegraphics[width=0.25\textwidth]{../figures/conv_scheme.png}
-  \end{center}
-  \caption{Архитектура сетей \textbf{ConvTiny} и \textbf{ConvVeryTiny}.}
-  \label{ris:conv_architecture}
-\end{wrapfigure}
-
 Для проведения экспериментов использовался датасет CIFAR10, разбитый на обучающую и тестовую выборку.
 Использовались модели \textbf{ResNet10}, \textbf{ResNet18}, \textbf{ConvTiny} и \textbf{ConvVeryTiny}.
 Последние две - свёрточные нейронные сети, с тремя свёрточными и двумя полносвязными слоями, как описано на схеме \ref{ris:conv_architecture}.
@@ -161,10 +153,17 @@ $I(t_{i}, s_{j})$ --- взаимная информация, $\beta$ и $\lambda
 \ref{ris:hinton_beta} и \ref{ris:hinton_temp} соответственно.
 
 \begin{figure}[h]
-  \includegraphics[width=9cm]{../figures/box_hinton_model_accuracy.png}
-  \centering
-  \caption{Сравнение качества моделей.}
-  \label{ris:hinton_box}
+  \begin{multicols}{2}
+    \includegraphics[width=0.3\textwidth]{../figures/conv_scheme.png}
+    \hfill
+    \caption{Архитектура сетей \textbf{ConvTiny} и \textbf{ConvVeryTiny}.}
+    \label{ris:conv_architecture}
+    \hfill
+    \includegraphics[width=0.6\textwidth]{../figures/box_hinton_model_accuracy.png}
+    \hfill
+    \caption{Сравнение качества моделей.}
+    \label{ris:hinton_box}
+  \end{multicols}
 \end{figure}
 
 \begin{figure}[h]
